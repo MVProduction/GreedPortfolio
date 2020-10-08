@@ -1,1 +1,0 @@
-crystal build ./src/greed_portfolio_console.cr -o ./bin/greed_portfolio_console
