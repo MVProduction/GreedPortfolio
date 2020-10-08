@@ -1,0 +1,16 @@
+name: greed_portfolio_server
+description: Сервер для портфеля "Жадный лежебока"
+version: 1.0.0
+# homepage: https://www.example.com
+
+environment:
+  sdk: '>=2.8.1 <3.0.0'
+
+dependencies:
+  jaguar:
+  jaguar_cors:
+  invest_api_dart:
+    path: ../../InvestApiDart
+
+dev_dependencies:
+  pedantic: ^1.9.0
