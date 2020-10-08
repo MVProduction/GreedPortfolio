@@ -269,7 +269,8 @@ class _MainPageState extends State<MainPage> {
                 ],
                 pointColorMapper: (ChartData data, _) => data.color,
                 xValueMapper: (ChartData data, _) => data.name,
-                yValueMapper: (ChartData data, _) => data.value,
+                yValueMapper: (ChartData data, _) =>
+                    double.parse(data.value.toStringAsFixed(2)),
                 startAngle: 90,
                 endAngle: 90,
                 dataLabelSettings: DataLabelSettings(
@@ -441,7 +442,7 @@ class _MainPageState extends State<MainPage> {
   Future _reloadData() {
     _eventStream.add(MainPageWaitState());
     final now = DateTime.now();
-    return Dio().get("http://192.168.1.93:8090/portfolio").then((value) {
+    return Dio().get("http://192.168.1.3:8090/portfolio").then((value) {
       final resp = PortfolioResponse.fromJson(value.data);
       _eventStream.add(MainPageWorkState(now, resp));
     }).catchError((e) {
