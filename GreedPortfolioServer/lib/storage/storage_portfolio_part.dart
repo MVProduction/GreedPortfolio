@@ -22,8 +22,8 @@ class StoragePortfolioPart {
   static StoragePortfolioPart fromJson(Map<String, dynamic> data) {
     final price = ValueWithCurrency.fromJson(data['price']);
     final deviation = ValueWithCurrency.fromJson(data['deviation']);
-    return StoragePortfolioPart(data['name'], price, data['ratio'], deviation,
-        data['deviationPercent']);
+    return StoragePortfolioPart(data['type'].toString().toPortfolioPartType(),
+        price, data['ratio'], deviation, data['deviationPercent']);
   }
 
   /// Конструктор
