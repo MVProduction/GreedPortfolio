@@ -26,4 +26,14 @@ class StoragePortfolio {
     final jsonParts = parts.map((x) => x.toJson()).toList();
     return {'dollar': dollar.toJson(), 'parts': jsonParts};
   }
+
+  /// Считает сумму по портфелю в рублях
+  num getSummInRub() {
+    num summ = 0;
+    for (final part in parts) {
+      summ += part.price;
+    }
+
+    return summ;
+  }
 }

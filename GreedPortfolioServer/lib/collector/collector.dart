@@ -118,26 +118,14 @@ class Collector {
     final date = DateTime(now.year, now.month, now.day, now.hour);
 
     final parts = <StoragePortfolioPart>[
+      StoragePortfolioPart(PortfolioPartType.Stocks, stocksSumm, stockRatio,
+          stockDeviation, stockDeviationPercent),
+      StoragePortfolioPart(PortfolioPartType.Bonds, bondSumm, bondRatio,
+          bondDeviation, bondDeviationPercent),
+      StoragePortfolioPart(PortfolioPartType.Gold, goldSumm, goldRatio,
+          goldDeviation, goldDeviationPercent),
       StoragePortfolioPart(
-          PortfolioPartType.Stocks,
-          ValueWithCurrency('RUB', stocksSumm),
-          stockRatio,
-          ValueWithCurrency('RUB', stockDeviation),
-          stockDeviationPercent),
-      StoragePortfolioPart(
-          PortfolioPartType.Bonds,
-          ValueWithCurrency('RUB', bondSumm),
-          bondRatio,
-          ValueWithCurrency('RUB', bondDeviation),
-          bondDeviationPercent),
-      StoragePortfolioPart(
-          PortfolioPartType.Gold,
-          ValueWithCurrency('RUB', goldSumm),
-          goldRatio,
-          ValueWithCurrency('RUB', goldDeviation),
-          goldDeviationPercent),
-      StoragePortfolioPart(PortfolioPartType.Currency,
-          ValueWithCurrency('RUB', currencySumm), currencyRatio)
+          PortfolioPartType.Currency, currencySumm, currencyRatio)
     ];
 
     final portfolio =

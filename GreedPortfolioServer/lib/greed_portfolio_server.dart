@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:greed_portfolio_server/collector/collector.dart';
 import 'package:greed_portfolio_server/storage/storage.dart';
+import 'package:greed_portfolio_server/common/yield_interval.dart';
 import 'package:jaguar/jaguar.dart';
 import 'package:jaguar_cors/jaguar_cors.dart';
 
@@ -13,8 +14,8 @@ class GreedPortfolioServer {
       allowAllMethods: true,
       allowAllHeaders: true);
 
-  /// Возвращает информацию по портфелю
-  FutureOr<dynamic> _getPortfolio(Context ctx) async {
+  /// Возвращает текущую информацию по портфелю
+  FutureOr<dynamic> _getCurrentPortfolio(Context ctx) async {
     final storage = Storage();
 
     // TODO: вынести настройки куда то
@@ -37,13 +38,62 @@ class GreedPortfolioServer {
     };
   }
 
+  /// Возвращает доходность по портфелю
+  FutureOr<dynamic> _getPortfolioYield(Context ctx) async {
+    final interval = ctx.query.get('interval').toYieldInterval();
+    final to = DateTime.now();
+
+    DateTime from;
+
+    switch (interval) {
+      case YieldInterval.Day:
+        from = DateTime(to.year, to.month, to.day);
+        break;
+      case YieldInterval.Month:
+        from = DateTime(to.year, to.month, 1);
+        break;
+      case YieldInterval.SixMonth:
+        break;
+      case YieldInterval.Year:
+        from = DateTime(to.year, 1, 1);
+        break;
+      case YieldInterval.All:
+        from = DateTime(2020, 1, 1);
+        break;
+      case YieldInterval.Custom:
+        // TODO: Handle this case.
+        break;
+    }
+
+    final storage = Storage();
+    final portfolios = await storage.loadPortfolio(from, to);
+    final first = portfolios.first;
+    final last = portfolios.last;
+
+    final firstPrice = first.portfolio.getSummInRub();
+    final lastPrice = last.portfolio.getSummInRub();
+
+    print(lastPrice);
+    print(firstPrice);
+
+    final yieldInRub = lastPrice - firstPrice;
+    final yieldPercent = (yieldInRub / firstPrice) * 100;
+
+    return <String, dynamic>{
+      'yieldPrice': yieldInRub,
+      'yieldPercent': yieldPercent
+    };
+  }
+
   /// Создаёт API сервера
   void start(int port) {
     /// Запускает сбор
     Collector().start();
 
     Jaguar(port: port)
-      ..getJson('/portfolio', _getPortfolio, before: [cors(options)])
+      ..getJson('/portfolio/current', _getCurrentPortfolio,
+          before: [cors(options)])
+      ..getJson('/portfolio/yield', _getPortfolioYield, before: [cors(options)])
       ..serve();
 
     print('API started on port $port');
