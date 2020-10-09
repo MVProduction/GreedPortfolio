@@ -11,6 +11,8 @@ dependencies:
   jaguar_cors:
   invest_api_dart:
     path: ../../InvestApiDart
+  sqlite3: ^0.1.6
+  cron: ^0.2.3
 
 dev_dependencies:
   pedantic: ^1.9.0
