@@ -1,9 +1,10 @@
+import 'package:greed_portfolio_server/storage/portfolio_part_type.dart';
 import 'package:invest_api_dart/invest_api_dart.dart';
 
 /// Часть от портфеля
 class StoragePortfolioPart {
-  /// Название
-  final String name;
+  /// Тип части портфеля
+  final PortfolioPartType type;
 
   /// Полная цена части
   final ValueWithCurrency price;
@@ -26,14 +27,14 @@ class StoragePortfolioPart {
   }
 
   /// Конструктор
-  StoragePortfolioPart(this.name, this.price,
+  StoragePortfolioPart(this.type, this.price,
       [this.ratio, this.deviation, this.deviationPercent]);
 
   /// Преобразует json
   Map<String, dynamic> toJson() {
     final deviationJson = deviation != null ? deviation.toJson() : null;
     return {
-      'name': name,
+      'type': type.getStringValue(),
       'price': price.toJson(),
       'ratio': ratio,
       'deviation': deviationJson,

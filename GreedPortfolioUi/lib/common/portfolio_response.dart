@@ -1,31 +1,25 @@
 class PortfolioResponse {
   StrategyRatios strategyRatios;
-  Price dollar;
-  Stocks stocks;
-  Stocks bonds;
-  Stocks gold;
-  Currency currency;
+  String dataDate;
+  Currency dollar;
+  List<Parts> parts;
 
   PortfolioResponse(
-      {this.strategyRatios,
-      this.dollar,
-      this.stocks,
-      this.bonds,
-      this.gold,
-      this.currency});
+      {this.strategyRatios, this.dataDate, this.dollar, this.parts});
 
   PortfolioResponse.fromJson(Map<String, dynamic> json) {
     strategyRatios = json['strategyRatios'] != null
         ? new StrategyRatios.fromJson(json['strategyRatios'])
         : null;
-    dollar = json['dollar'] != null ? new Price.fromJson(json['dollar']) : null;
-    stocks =
-        json['stocks'] != null ? new Stocks.fromJson(json['stocks']) : null;
-    bonds = json['bonds'] != null ? new Stocks.fromJson(json['bonds']) : null;
-    gold = json['gold'] != null ? new Stocks.fromJson(json['gold']) : null;
-    currency = json['currency'] != null
-        ? new Currency.fromJson(json['currency'])
-        : null;
+    dataDate = json['dataDate'];
+    dollar =
+        json['dollar'] != null ? new Currency.fromJson(json['dollar']) : null;
+    if (json['parts'] != null) {
+      parts = new List<Parts>();
+      json['parts'].forEach((v) {
+        parts.add(new Parts.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -33,20 +27,12 @@ class PortfolioResponse {
     if (this.strategyRatios != null) {
       data['strategyRatios'] = this.strategyRatios.toJson();
     }
+    data['dataDate'] = this.dataDate;
     if (this.dollar != null) {
       data['dollar'] = this.dollar.toJson();
     }
-    if (this.stocks != null) {
-      data['stocks'] = this.stocks.toJson();
-    }
-    if (this.bonds != null) {
-      data['bonds'] = this.bonds.toJson();
-    }
-    if (this.gold != null) {
-      data['gold'] = this.gold.toJson();
-    }
-    if (this.currency != null) {
-      data['currency'] = this.currency.toJson();
+    if (this.parts != null) {
+      data['parts'] = this.parts.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -74,44 +60,52 @@ class StrategyRatios {
   }
 }
 
-class Price {
-  double value;
+class Currency {
   String currency;
+  double value;
 
-  Price({this.value, this.currency});
+  Currency({this.currency, this.value});
 
-  Price.fromJson(Map<String, dynamic> json) {
-    value = json['value'];
+  Currency.fromJson(Map<String, dynamic> json) {
     currency = json['currency'];
+    value = json['value'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['value'] = this.value;
     data['currency'] = this.currency;
+    data['value'] = this.value;
     return data;
   }
 }
 
-class Stocks {
-  Price price;
+class Parts {
+  String name;
+  Currency price;
   double ratio;
-  Price deviation;
+  Currency deviation;
   double deviationPercent;
 
-  Stocks({this.price, this.ratio, this.deviation, this.deviationPercent});
+  Parts(
+      {this.name,
+      this.price,
+      this.ratio,
+      this.deviation,
+      this.deviationPercent});
 
-  Stocks.fromJson(Map<String, dynamic> json) {
-    price = json['price'] != null ? new Price.fromJson(json['price']) : null;
+  Parts.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    price = json['price'] != null ? new Currency.fromJson(json['price']) : null;
     ratio = json['ratio'];
     deviation = json['deviation'] != null
-        ? new Price.fromJson(json['deviation'])
+        ? new Currency.fromJson(json['deviation'])
         : null;
     deviationPercent = json['deviationPercent'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = this.name;
     if (this.price != null) {
       data['price'] = this.price.toJson();
     }
@@ -120,27 +114,6 @@ class Stocks {
       data['deviation'] = this.deviation.toJson();
     }
     data['deviationPercent'] = this.deviationPercent;
-    return data;
-  }
-}
-
-class Currency {
-  Price price;
-  double ratio;
-
-  Currency({this.price, this.ratio});
-
-  Currency.fromJson(Map<String, dynamic> json) {
-    price = json['price'] != null ? new Price.fromJson(json['price']) : null;
-    ratio = json['ratio'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.price != null) {
-      data['price'] = this.price.toJson();
-    }
-    data['ratio'] = this.ratio;
     return data;
   }
 }

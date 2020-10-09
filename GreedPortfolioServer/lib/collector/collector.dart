@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cron/cron.dart';
+import 'package:greed_portfolio_server/storage/portfolio_part_type.dart';
 import 'package:greed_portfolio_server/storage/storage.dart';
 import 'package:greed_portfolio_server/storage/storage_portfolio.dart';
 import 'package:greed_portfolio_server/storage/storage_portfolio_part.dart';
@@ -80,14 +81,11 @@ class Collector {
     const goldPercent = 10;
     const stockPercent = 100 - bondPercent - goldPercent;
 
-    print(1);
     final dollarInRub = await _getLastPrice(DOLLAR_FIGI);
     final positions = await tinkoffApi.getPortfolio();
     final currencyPositions = await tinkoffApi.getPortfolioCurrencies();
     final currencySumm =
         _calcCurrencyPositionSumInRub(currencyPositions, dollarInRub);
-
-    print(2);
 
     final bondPositions = positions
         .where((x) => x.instrumentType == 'Bond' || x.ticker == 'AKMB')
@@ -101,7 +99,6 @@ class Collector {
     final stocksSumm = await calcPositionSumInRub(stocksPositions, dollarInRub);
     final totalSumm = bondSumm + goldSumm + stocksSumm + currencySumm;
 
-    print(3);
     final stockRatio = (stocksSumm / totalSumm) * 100;
     final bondRatio = (bondSumm / totalSumm) * 100;
     final goldRatio = (goldSumm / totalSumm) * 100;
@@ -120,34 +117,32 @@ class Collector {
     final now = DateTime.now();
     final date = DateTime(now.year, now.month, now.day, now.hour);
 
-    print(4);
     final parts = <StoragePortfolioPart>[
       StoragePortfolioPart(
-          'Акции',
+          PortfolioPartType.Stocks,
           ValueWithCurrency('RUB', stocksSumm),
           stockRatio,
           ValueWithCurrency('RUB', stockDeviation),
           stockDeviationPercent),
       StoragePortfolioPart(
-          'Облигации',
+          PortfolioPartType.Bonds,
           ValueWithCurrency('RUB', bondSumm),
           bondRatio,
           ValueWithCurrency('RUB', bondDeviation),
           bondDeviationPercent),
       StoragePortfolioPart(
-          'Золото',
+          PortfolioPartType.Gold,
           ValueWithCurrency('RUB', goldSumm),
           goldRatio,
           ValueWithCurrency('RUB', goldDeviation),
           goldDeviationPercent),
-      StoragePortfolioPart(
-          'Валюты', ValueWithCurrency('RUB', currencySumm), currencyRatio)
+      StoragePortfolioPart(PortfolioPartType.Currency,
+          ValueWithCurrency('RUB', currencySumm), currencyRatio)
     ];
 
     final portfolio =
         StoragePortfolio(ValueWithCurrency('RUB', dollarInRub), parts);
 
-    print(5);
     final storage = Storage();
     await storage.savePortfolio(date, portfolio);
     print('collected: $date');
@@ -168,7 +163,7 @@ class Collector {
 
     print('collector started');
     var cron = Cron();
-    cron.schedule(Schedule.parse('0 */1 * * *'), () async {
+    cron.schedule(Schedule.parse('*/1 * * * *'), () async {
       await _collect();
     });
   }

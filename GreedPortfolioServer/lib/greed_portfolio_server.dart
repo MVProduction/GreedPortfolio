@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:greed_portfolio_server/collector/collector.dart';
 import 'package:greed_portfolio_server/storage/storage.dart';
-import 'package:greed_portfolio_server/token.dart';
-import 'package:invest_api_dart/invest_api_dart.dart';
 import 'package:jaguar/jaguar.dart';
 import 'package:jaguar_cors/jaguar_cors.dart';
 
