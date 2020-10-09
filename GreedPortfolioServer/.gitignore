@@ -9,3 +9,5 @@ build/
 doc/api/
 
 lib/token.dart
+
+bin/storage.db

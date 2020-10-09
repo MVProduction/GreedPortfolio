@@ -1,7 +1,7 @@
 class PortfolioResponse {
   StrategyRatios strategyRatios;
   String dataDate;
-  Dollar dollar;
+  Currency dollar;
   List<Parts> parts;
 
   PortfolioResponse(
@@ -13,7 +13,7 @@ class PortfolioResponse {
         : null;
     dataDate = json['dataDate'];
     dollar =
-        json['dollar'] != null ? new Dollar.fromJson(json['dollar']) : null;
+        json['dollar'] != null ? new Currency.fromJson(json['dollar']) : null;
     if (json['parts'] != null) {
       parts = new List<Parts>();
       json['parts'].forEach((v) {
@@ -60,13 +60,13 @@ class StrategyRatios {
   }
 }
 
-class Dollar {
+class Currency {
   String currency;
   double value;
 
-  Dollar({this.currency, this.value});
+  Currency({this.currency, this.value});
 
-  Dollar.fromJson(Map<String, dynamic> json) {
+  Currency.fromJson(Map<String, dynamic> json) {
     currency = json['currency'];
     value = json['value'];
   }
@@ -81,9 +81,9 @@ class Dollar {
 
 class Parts {
   String type;
-  Dollar price;
+  Currency price;
   double ratio;
-  Dollar deviation;
+  Currency deviation;
   double deviationPercent;
 
   Parts(
@@ -95,10 +95,10 @@ class Parts {
 
   Parts.fromJson(Map<String, dynamic> json) {
     type = json['type'];
-    price = json['price'] != null ? new Dollar.fromJson(json['price']) : null;
+    price = json['price'] != null ? new Currency.fromJson(json['price']) : null;
     ratio = json['ratio'];
     deviation = json['deviation'] != null
-        ? new Dollar.fromJson(json['deviation'])
+        ? new Currency.fromJson(json['deviation'])
         : null;
     deviationPercent = json['deviationPercent'];
   }

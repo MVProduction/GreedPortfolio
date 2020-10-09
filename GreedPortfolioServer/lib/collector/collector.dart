@@ -163,7 +163,7 @@ class Collector {
 
     print('collector started');
     var cron = Cron();
-    cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+    cron.schedule(Schedule.parse('0 */1 * * *'), () async {
       await _collect();
     });
   }

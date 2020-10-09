@@ -24,7 +24,7 @@ class PortfolioStockInfo {
   /// Процент
   final double deviationPercent;
 
-  PortfolioStockInfo.fromStocks(String name, Stocks stocks)
+  PortfolioStockInfo.fromStocks(String name, Parts stocks)
       : this.name = name,
         this.ratio = stocks.ratio,
         this.price = stocks.price.value,
@@ -407,24 +407,29 @@ class _MainPageState extends State<MainPage> {
 
   /// Возвращает Widget рабочего приложения
   Widget _getWorkWidget(PortfolioResponse data) {
-    final total = data.stocks.price.value +
-        data.bonds.price.value +
-        data.gold.price.value +
-        data.currency.price.value;
+    final stocksPart = data.parts.firstWhere((x) => x.type == 'stocks');
+    final bondsPart = data.parts.firstWhere((x) => x.type == 'bonds');
+    final goldPart = data.parts.firstWhere((x) => x.type == 'gold');
+    final currencyPart = data.parts.firstWhere((x) => x.type == 'currency');
+
+    final total = stocksPart.price.value +
+        bondsPart.price.value +
+        goldPart.price.value +
+        currencyPart.price.value;
 
     final dollar = data.dollar.value;
     // final stocksPrice = data.stocks.price.value;
     // final bondsPrice = data.bonds.price.value;
     // final goldPrice = data.gold.price.value;
 
-    final stocksRatio = data.stocks.ratio;
-    final bondsRatio = data.bonds.ratio;
-    final goldRatio = data.gold.ratio;
+    final stocksRatio = stocksPart.ratio;
+    final bondsRatio = bondsPart.ratio;
+    final goldRatio = goldPart.ratio;
 
     final stocks = <PortfolioStockInfo>[
-      PortfolioStockInfo.fromStocks('Акции', data.stocks),
-      PortfolioStockInfo.fromStocks('Облигации', data.bonds),
-      PortfolioStockInfo.fromStocks('Золото', data.gold),
+      PortfolioStockInfo.fromStocks('Акции', stocksPart),
+      PortfolioStockInfo.fromStocks('Облигации', bondsPart),
+      PortfolioStockInfo.fromStocks('Золото', goldPart),
     ];
 
     return ListView(
@@ -433,7 +438,7 @@ class _MainPageState extends State<MainPage> {
         _getTotalInfo(total),
         _getDollarInfo(dollar),
         _getPortfolioChartWidget(stocksRatio, bondsRatio, goldRatio),
-        _getPortfolioTableWidget(stocks, data.currency.price.value)
+        _getPortfolioTableWidget(stocks, currencyPart.price.value)
       ],
     );
   }
@@ -441,10 +446,10 @@ class _MainPageState extends State<MainPage> {
   /// Обновляет данные
   Future _reloadData() {
     _eventStream.add(MainPageWaitState());
-    final now = DateTime.now();
     return Dio().get("http://192.168.1.93:8090/portfolio").then((value) {
       final resp = PortfolioResponse.fromJson(value.data);
-      _eventStream.add(MainPageWorkState(now, resp));
+      final date = DateTime.parse(resp.dataDate).toLocal();
+      _eventStream.add(MainPageWorkState(date, resp));
     }).catchError((e) {
       print(e);
     });
