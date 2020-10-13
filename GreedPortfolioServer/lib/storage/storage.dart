@@ -64,7 +64,7 @@ class Storage {
     final toSeconds = to.utcSecondsFromEpoch;
 
     final resultSet = _db.select(
-        'SELECT data_date,data FROM portfolio WHERE data_date>=? and data_date<=? ORDER BY data_date DESC',
+        'SELECT data_date,data FROM portfolio WHERE data_date>=? and data_date<=? ORDER BY data_date',
         [fromSeconds, toSeconds]);
 
     final res = <StoragePortfolioWithDate>[];

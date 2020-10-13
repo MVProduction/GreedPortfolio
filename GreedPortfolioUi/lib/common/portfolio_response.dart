@@ -81,9 +81,9 @@ class Currency {
 
 class Parts {
   String type;
-  Currency price;
+  double price;
   double ratio;
-  Currency deviation;
+  double deviation;
   double deviationPercent;
 
   Parts(
@@ -95,24 +95,18 @@ class Parts {
 
   Parts.fromJson(Map<String, dynamic> json) {
     type = json['type'];
-    price = json['price'] != null ? new Currency.fromJson(json['price']) : null;
+    price = json['price'];
     ratio = json['ratio'];
-    deviation = json['deviation'] != null
-        ? new Currency.fromJson(json['deviation'])
-        : null;
+    deviation = json['deviation'];
     deviationPercent = json['deviationPercent'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['type'] = this.type;
-    if (this.price != null) {
-      data['price'] = this.price.toJson();
-    }
+    data['price'] = this.price;
     data['ratio'] = this.ratio;
-    if (this.deviation != null) {
-      data['deviation'] = this.deviation.toJson();
-    }
+    data['deviation'] = this.deviation;
     data['deviationPercent'] = this.deviationPercent;
     return data;
   }

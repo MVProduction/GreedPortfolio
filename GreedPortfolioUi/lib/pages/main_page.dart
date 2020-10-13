@@ -27,8 +27,8 @@ class PortfolioStockInfo {
   PortfolioStockInfo.fromStocks(String name, Parts stocks)
       : this.name = name,
         this.ratio = stocks.ratio,
-        this.price = stocks.price.value,
-        this.deviation = stocks.deviation.value,
+        this.price = stocks.price,
+        this.deviation = stocks.deviation,
         this.deviationPercent = stocks.deviationPercent;
 
   PortfolioStockInfo(
@@ -412,10 +412,10 @@ class _MainPageState extends State<MainPage> {
     final goldPart = data.parts.firstWhere((x) => x.type == 'gold');
     final currencyPart = data.parts.firstWhere((x) => x.type == 'currency');
 
-    final total = stocksPart.price.value +
-        bondsPart.price.value +
-        goldPart.price.value +
-        currencyPart.price.value;
+    final total = stocksPart.price +
+        bondsPart.price +
+        goldPart.price +
+        currencyPart.price;
 
     final dollar = data.dollar.value;
     // final stocksPrice = data.stocks.price.value;
@@ -438,7 +438,7 @@ class _MainPageState extends State<MainPage> {
         _getTotalInfo(total),
         _getDollarInfo(dollar),
         _getPortfolioChartWidget(stocksRatio, bondsRatio, goldRatio),
-        _getPortfolioTableWidget(stocks, currencyPart.price.value)
+        _getPortfolioTableWidget(stocks, currencyPart.price)
       ],
     );
   }
@@ -446,7 +446,9 @@ class _MainPageState extends State<MainPage> {
   /// Обновляет данные
   Future _reloadData() {
     _eventStream.add(MainPageWaitState());
-    return Dio().get("http://192.168.1.93:8090/portfolio").then((value) {
+    return Dio()
+        .get("http://192.168.1.93:8090/portfolio/current")
+        .then((value) {
       final resp = PortfolioResponse.fromJson(value.data);
       final date = DateTime.parse(resp.dataDate).toLocal();
       _eventStream.add(MainPageWorkState(date, resp));

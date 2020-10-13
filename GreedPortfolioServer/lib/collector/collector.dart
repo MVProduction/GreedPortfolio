@@ -94,7 +94,8 @@ class Collector {
     final goldPositions = positions.where((x) => x.ticker == 'TGLD').toList();
     final goldSumm = await calcPositionSumInRub(goldPositions, dollarInRub);
     final stocksPositions = positions
-        .where((x) => x.ticker == 'AKNX' || x.ticker == 'FXIT')
+        .where((x) =>
+            x.ticker == 'AKNX' || x.ticker == 'FXIT' || x.ticker == 'TECH')
         .toList();
     final stocksSumm = await calcPositionSumInRub(stocksPositions, dollarInRub);
     final totalSumm = bondSumm + goldSumm + stocksSumm + currencySumm;
@@ -151,8 +152,13 @@ class Collector {
 
     print('collector started');
     var cron = Cron();
+    var isCollecting = false;
     cron.schedule(Schedule.parse('0 */1 * * *'), () async {
-      await _collect();
+      if (!isCollecting) {
+        isCollecting = true;
+        await _collect();
+        isCollecting = false;
+      }
     });
   }
 
