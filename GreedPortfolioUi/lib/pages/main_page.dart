@@ -126,7 +126,32 @@ class _MainPageState extends State<MainPage> {
   }
 
   /// Возвращает Widget описания стратегии
-  Widget _getStrategyInfoWidget() {
+  Widget _getStrategyInfoWidget(StrategyRatios ratios) {
+    Widget _getStrategyItem(String name, int value, Color color) {
+      return Padding(
+        padding: EdgeInsets.only(right: 16),
+        child: Row(
+          children: [
+            Container(
+                width: 36,
+                height: 36,
+                child: CircleAvatar(
+                  backgroundColor: color,
+                  child: Text("$value%",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                )),
+            Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Text(name),
+            )
+          ],
+        ),
+      );
+    }
+
     return Column(
       children: [
         Padding(
@@ -145,72 +170,11 @@ class _MainPageState extends State<MainPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Row(
-                            children: [
-                              Container(
-                                  width: 36,
-                                  height: 36,
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.blue,
-                                    child: Text("80%",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white)),
-                                  )),
-                              Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Text("Акции"),
-                              )
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Row(
-                            children: [
-                              Container(
-                                  width: 36,
-                                  height: 36,
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.red,
-                                    child: Text("10%",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white)),
-                                  )),
-                              Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Text("Облигации"),
-                              )
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Row(
-                            children: [
-                              Container(
-                                  width: 36,
-                                  height: 36,
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.amber,
-                                    child: Text("10%",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white)),
-                                  )),
-                              Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Text("Золото"),
-                              )
-                            ],
-                          ),
-                        )
+                        _getStrategyItem('Акции', ratios.stocks, Colors.blue),
+                        _getStrategyItem('Облигации', ratios.bonds, Colors.red),
+                        _getStrategyItem('Золото', ratios.gold, Colors.amber),
+                        _getStrategyItem(
+                            'Недвижимость', ratios.reit, Colors.green),
                       ],
                     )),
                 Container(
@@ -218,19 +182,25 @@ class _MainPageState extends State<MainPage> {
                   child: Row(
                     children: [
                       Expanded(
-                        flex: 8,
+                        flex: (ratios.stocks / 10).round(),
                         child: Container(color: Colors.blue),
                       ),
                       Expanded(
-                        flex: 1,
+                        flex: (ratios.bonds / 10).round(),
                         child: Container(
                           color: Colors.red,
                         ),
                       ),
                       Expanded(
-                        flex: 1,
+                        flex: (ratios.gold / 10).round(),
                         child: Container(
                           color: Colors.amber,
+                        ),
+                      ),
+                      Expanded(
+                        flex: (ratios.reit / 10).round(),
+                        child: Container(
+                          color: Colors.green,
                         ),
                       )
                     ],
@@ -243,7 +213,8 @@ class _MainPageState extends State<MainPage> {
   }
 
   /// Возвращает Widget с графиком портфеля
-  Widget _getPortfolioChartWidget(double stocks, bonds, double gold) {
+  Widget _getPortfolioChartWidget(
+      double stocks, double bonds, double gold, double reit) {
     return Column(children: [
       Padding(
         padding: EdgeInsets.only(top: 32, bottom: 0),
@@ -266,6 +237,7 @@ class _MainPageState extends State<MainPage> {
                   ChartData("Акции", stocks, Colors.blue),
                   ChartData("Облигации", bonds, Colors.red),
                   ChartData("Золото", gold, Colors.amber),
+                  ChartData("Недвижимость", reit, Colors.green),
                 ],
                 pointColorMapper: (ChartData data, _) => data.color,
                 xValueMapper: (ChartData data, _) => data.name,
@@ -410,6 +382,7 @@ class _MainPageState extends State<MainPage> {
     final stocksPart = data.parts.firstWhere((x) => x.type == 'stocks');
     final bondsPart = data.parts.firstWhere((x) => x.type == 'bonds');
     final goldPart = data.parts.firstWhere((x) => x.type == 'gold');
+    final reitPart = data.parts.firstWhere((x) => x.type == 'reit');
     final currencyPart = data.parts.firstWhere((x) => x.type == 'currency');
 
     final total = stocksPart.price +
@@ -418,26 +391,25 @@ class _MainPageState extends State<MainPage> {
         currencyPart.price;
 
     final dollar = data.dollar.value;
-    // final stocksPrice = data.stocks.price.value;
-    // final bondsPrice = data.bonds.price.value;
-    // final goldPrice = data.gold.price.value;
 
     final stocksRatio = stocksPart.ratio;
     final bondsRatio = bondsPart.ratio;
     final goldRatio = goldPart.ratio;
+    final reitRatio = reitPart.ratio;
 
     final stocks = <PortfolioStockInfo>[
       PortfolioStockInfo.fromStocks('Акции', stocksPart),
       PortfolioStockInfo.fromStocks('Облигации', bondsPart),
       PortfolioStockInfo.fromStocks('Золото', goldPart),
+      PortfolioStockInfo.fromStocks('Недвижимость', reitPart)
     ];
 
     return ListView(
       children: [
-        _getStrategyInfoWidget(),
+        _getStrategyInfoWidget(data.strategyRatios),
         _getTotalInfo(total),
         _getDollarInfo(dollar),
-        _getPortfolioChartWidget(stocksRatio, bondsRatio, goldRatio),
+        _getPortfolioChartWidget(stocksRatio, bondsRatio, goldRatio, reitRatio),
         _getPortfolioTableWidget(stocks, currencyPart.price)
       ],
     );

@@ -31,7 +31,7 @@ class GreedPortfolioServer {
       'strategyRatios': {
         'stocks': stockPercent,
         'bonds': bondPercent,
-        'gold': stockPercent,
+        'gold': goldPercent,
         'reit': reitPercent
       },
       'dataDate': portfolio.dataDate.toIso8601String(),

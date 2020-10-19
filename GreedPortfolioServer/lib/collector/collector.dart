@@ -93,9 +93,9 @@ class Collector {
   Future _collect() async {
     print('start to collect');
     final stockPercent = StrategySettings.stockPercent;
-    final bondPercent = StrategySettings.stockPercent;
-    final goldPercent = StrategySettings.stockPercent;
-    final reitPercent = StrategySettings.stockPercent;
+    final bondPercent = StrategySettings.bondPercent;
+    final goldPercent = StrategySettings.goldPercent;
+    final reitPercent = StrategySettings.reitPercent;
 
     final dollarInRub = await _getLastPrice(DOLLAR_FIGI);
     final positions = await tinkoffApi.getPortfolio();

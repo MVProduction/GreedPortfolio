@@ -42,13 +42,15 @@ class StrategyRatios {
   int stocks;
   int bonds;
   int gold;
+  int reit;
 
-  StrategyRatios({this.stocks, this.bonds, this.gold});
+  StrategyRatios({this.stocks, this.bonds, this.gold, this.reit});
 
   StrategyRatios.fromJson(Map<String, dynamic> json) {
     stocks = json['stocks'];
     bonds = json['bonds'];
     gold = json['gold'];
+    reit = json['reit'];
   }
 
   Map<String, dynamic> toJson() {
@@ -56,6 +58,7 @@ class StrategyRatios {
     data['stocks'] = this.stocks;
     data['bonds'] = this.bonds;
     data['gold'] = this.gold;
+    data['reit'] = this.reit;
     return data;
   }
 }
