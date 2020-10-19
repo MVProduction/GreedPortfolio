@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cron/cron.dart';
+import 'package:greed_portfolio_server/common/strategy_settings.dart';
 import 'package:greed_portfolio_server/storage/portfolio_part_type.dart';
 import 'package:greed_portfolio_server/storage/storage.dart';
 import 'package:greed_portfolio_server/storage/storage_portfolio.dart';
@@ -20,6 +21,20 @@ class Collector {
 
   /// API для tinkoff
   final tinkoffApi = TinkoffRestApi(TINKOFF_API_TOKEN);
+
+  /// Проверяет что инструмент входит в акции
+  bool _isStock(TinkoffPortfolioPosition x) =>
+      x.ticker == 'AKNX' || x.ticker == 'FXIT' || x.ticker == 'TECH';
+
+  /// Проверяет что инструмент входит в облигации
+  bool _isBond(TinkoffPortfolioPosition x) =>
+      x.instrumentType == 'Bond' || x.ticker == 'AKMB';
+
+  /// Проверяет что инструмент входит в золото
+  bool _isGold(TinkoffPortfolioPosition x) => x.ticker == 'TGLD';
+
+  /// Проверяет что инструмент входит в недвижимость
+  bool _isReit(TinkoffPortfolioPosition x) => x.ticker == 'O';
 
   /// Возвращает последнюю цену для инструмента
   Future<num> _getLastPrice(String figi) async {
@@ -77,9 +92,10 @@ class Collector {
   /// Собирает данные
   Future _collect() async {
     print('start to collect');
-    const bondPercent = 10;
-    const goldPercent = 10;
-    const stockPercent = 100 - bondPercent - goldPercent;
+    final stockPercent = StrategySettings.stockPercent;
+    final bondPercent = StrategySettings.stockPercent;
+    final goldPercent = StrategySettings.stockPercent;
+    final reitPercent = StrategySettings.stockPercent;
 
     final dollarInRub = await _getLastPrice(DOLLAR_FIGI);
     final positions = await tinkoffApi.getPortfolio();
@@ -87,22 +103,22 @@ class Collector {
     final currencySumm =
         _calcCurrencyPositionSumInRub(currencyPositions, dollarInRub);
 
-    final bondPositions = positions
-        .where((x) => x.instrumentType == 'Bond' || x.ticker == 'AKMB')
-        .toList();
+    final bondPositions = positions.where((x) => _isBond(x)).toList();
     final bondSumm = await calcPositionSumInRub(bondPositions, dollarInRub);
-    final goldPositions = positions.where((x) => x.ticker == 'TGLD').toList();
+    final goldPositions = positions.where((x) => _isGold(x)).toList();
     final goldSumm = await calcPositionSumInRub(goldPositions, dollarInRub);
-    final stocksPositions = positions
-        .where((x) =>
-            x.ticker == 'AKNX' || x.ticker == 'FXIT' || x.ticker == 'TECH')
-        .toList();
+    final reitPositions = positions.where((x) => _isReit(x)).toList();
+    final reitSumm = await calcPositionSumInRub(reitPositions, dollarInRub);
+
+    final stocksPositions = positions.where((x) => _isStock(x)).toList();
     final stocksSumm = await calcPositionSumInRub(stocksPositions, dollarInRub);
+
     final totalSumm = bondSumm + goldSumm + stocksSumm + currencySumm;
 
     final stockRatio = (stocksSumm / totalSumm) * 100;
     final bondRatio = (bondSumm / totalSumm) * 100;
     final goldRatio = (goldSumm / totalSumm) * 100;
+    final reitRatio = (reitSumm / totalSumm) * 100;
 
     final stockDeviationPercent = stockRatio - stockPercent;
     final stockDeviation = (totalSumm / 100) * stockDeviationPercent;
@@ -112,6 +128,9 @@ class Collector {
 
     final goldDeviationPercent = goldRatio - goldPercent;
     final goldDeviation = (totalSumm / 100) * goldDeviationPercent;
+
+    final reitDeviationPercent = reitRatio - reitPercent;
+    final reitDeviation = (totalSumm / 100) * reitDeviationPercent;
 
     final currencyRatio = (currencySumm / totalSumm) * 100;
 
@@ -125,6 +144,8 @@ class Collector {
           bondDeviation, bondDeviationPercent),
       StoragePortfolioPart(PortfolioPartType.Gold, goldSumm, goldRatio,
           goldDeviation, goldDeviationPercent),
+      StoragePortfolioPart(PortfolioPartType.Reit, reitSumm, reitRatio,
+          reitDeviation, reitDeviationPercent),
       StoragePortfolioPart(
           PortfolioPartType.Currency, currencySumm, currencyRatio)
     ];

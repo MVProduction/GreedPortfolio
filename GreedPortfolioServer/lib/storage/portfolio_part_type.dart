@@ -9,6 +9,9 @@ enum PortfolioPartType {
   /// Золото
   Gold,
 
+  /// Фонды недвижимости
+  Reit,
+
   /// Валюта
   Currency
 }
@@ -24,6 +27,8 @@ extension PortfolioPartTypeStringHelper on String {
         return PortfolioPartType.Bonds;
       case 'gold':
         return PortfolioPartType.Gold;
+      case 'reit':
+        return PortfolioPartType.Reit;
       case 'currency':
         return PortfolioPartType.Currency;
     }
@@ -43,6 +48,8 @@ extension PortfolioPartTypeHelper on PortfolioPartType {
         return 'bonds';
       case PortfolioPartType.Gold:
         return 'gold';
+      case PortfolioPartType.Reit:
+        return 'reit';
       case PortfolioPartType.Currency:
         return 'currency';
     }

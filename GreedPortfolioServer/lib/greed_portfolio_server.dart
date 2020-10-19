@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:greed_portfolio_server/collector/collector.dart';
+import 'package:greed_portfolio_server/common/strategy_settings.dart';
 import 'package:greed_portfolio_server/storage/storage.dart';
 import 'package:greed_portfolio_server/common/yield_interval.dart';
 import 'package:jaguar/jaguar.dart';
@@ -18,10 +19,10 @@ class GreedPortfolioServer {
   FutureOr<dynamic> _getCurrentPortfolio(Context ctx) async {
     final storage = Storage();
 
-    // TODO: вынести настройки куда то
-    const bondPercent = 10;
-    const goldPercent = 10;
-    const stockPercent = 100 - bondPercent - goldPercent;
+    const bondPercent = StrategySettings.bondPercent;
+    const goldPercent = StrategySettings.goldPercent;
+    const reitPercent = StrategySettings.reitPercent;
+    const stockPercent = 100 - bondPercent - goldPercent - reitPercent;
 
     final portfolio = await storage.loadLastPortfolio();
     if (portfolio == null) return <String, dynamic>{};
@@ -30,7 +31,8 @@ class GreedPortfolioServer {
       'strategyRatios': {
         'stocks': stockPercent,
         'bonds': bondPercent,
-        'gold': stockPercent
+        'gold': stockPercent,
+        'reit': reitPercent
       },
       'dataDate': portfolio.dataDate.toIso8601String(),
       'dollar': portfolio.portfolio.dollar.toJson(),
@@ -53,6 +55,7 @@ class GreedPortfolioServer {
         from = DateTime(to.year, to.month, 1);
         break;
       case YieldInterval.SixMonth:
+        // TODO: Доработать
         break;
       case YieldInterval.Year:
         from = DateTime(to.year, 1, 1);
@@ -61,7 +64,7 @@ class GreedPortfolioServer {
         from = DateTime(2020, 1, 1);
         break;
       case YieldInterval.Custom:
-        // TODO: Handle this case.
+        // TODO: Доработать
         break;
     }
 
@@ -72,9 +75,6 @@ class GreedPortfolioServer {
 
     final firstPrice = first.portfolio.getSummInRub();
     final lastPrice = last.portfolio.getSummInRub();
-
-    print(lastPrice);
-    print(firstPrice);
 
     final yieldInRub = lastPrice - firstPrice;
     final yieldPercent = (yieldInRub / firstPrice) * 100;
