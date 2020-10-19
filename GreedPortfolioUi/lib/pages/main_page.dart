@@ -388,6 +388,7 @@ class _MainPageState extends State<MainPage> {
     final total = stocksPart.price +
         bondsPart.price +
         goldPart.price +
+        reitPart.price +
         currencyPart.price;
 
     final dollar = data.dollar.value;
