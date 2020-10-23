@@ -23,8 +23,17 @@ class Collector {
   final tinkoffApi = TinkoffRestApi(TINKOFF_API_TOKEN);
 
   /// Проверяет что инструмент входит в акции
-  bool _isStock(TinkoffPortfolioPosition x) =>
-      x.ticker == 'AKNX' || x.ticker == 'FXIT' || x.ticker == 'TECH';
+  bool _isStock(TinkoffPortfolioPosition x) {
+    // Если это фонды на IT
+    if (x.ticker == 'AKNX' || x.ticker == 'FXIT' || x.ticker == 'TECH') {
+      return true;
+    }
+
+    // Если это акции но не REIT
+    if (x.instrumentType == 'Stock' && x.ticker != 'O') return true;
+
+    return false;
+  }
 
   /// Проверяет что инструмент входит в облигации
   bool _isBond(TinkoffPortfolioPosition x) =>
